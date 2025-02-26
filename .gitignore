@@ -1,7 +1,8 @@
 # Ignore all folders in avatars except atri and mono
-avatars/
-!avatars/atri
-!avatars/mono
+# avatars/
+# !avatars/atri
+# !avatars/mono
+# !avatars/Auto
 # Database
 *.db
 *.sqlite
