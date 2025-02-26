@@ -15,9 +15,9 @@ import codecs
 from src.utils.console import print_status, print_banner
 
 # 设置系统默认编码为 UTF-8
-if sys.platform.startswith('win'):
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer)
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
+# if sys.platform.startswith('win'):
+#     sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer)
+#     sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 # 初始化colorama
 init()

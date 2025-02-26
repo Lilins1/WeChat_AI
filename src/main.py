@@ -59,10 +59,12 @@ class ChatBot:
         """处理用户消息队列"""
         try:
             logger.info(f"开始处理消息队列 - 聊天ID: {chat_id}")
+            # print(f"开始处理消息队列 - 聊天ID: {chat_id}")
             
             with self.queue_lock:
                 if chat_id not in self.user_queues:
                     logger.warning(f"未找到消息队列: {chat_id}")
+                    # print(f"未找到消息队列: {chat_id}")
                     return
                 user_data = self.user_queues.pop(chat_id)
                 messages = user_data['messages']
@@ -71,7 +73,9 @@ class ChatBot:
                 is_group = user_data.get('is_group', False)
                 
             logger.info(f"队列信息 - 发送者: {sender_name}, 消息数: {len(messages)}, 是否群聊: {is_group}")
+            # print(f"队列信息 - 发送者: {sender_name}, 消息数: {len(messages)}, 是否群聊: {is_group}")
             logger.info(f"消息内容: {messages}")
+            # print(f"消息内容: {messages}")
 
             # 处理消息
             self.message_handler.add_to_queue(
@@ -82,9 +86,11 @@ class ChatBot:
                 is_group=is_group
             )
             logger.info(f"消息已添加到处理队列 - 聊天ID: {chat_id}")
+            print(f"消息已添加到处理队列 - 聊天ID: {chat_id}")
             
         except Exception as e:
             logger.error(f"处理消息队列失败: {str(e)}", exc_info=True)
+            print(f"处理消息队列失败: {str(e)}", exc_info=True)
 
     def handle_wxauto_message(self, msg, chatName, is_group=False):
         try:
@@ -331,27 +337,32 @@ def message_listener():
     check_interval = 600
     
     while True:
+        # print("listening")
         try:
             current_time = time.time()
             
             if wx is None or (current_time - last_window_check > check_interval):
                 wx = WeChat()
                 if not wx.GetSessionList():
+                    # print("no chat")
                     time.sleep(5)
                     continue
                 last_window_check = current_time
             
             msgs = wx.GetListenMessage()
             if not msgs:
+                # print("no message")
                 time.sleep(wait)
                 continue
                 
             for chat in msgs:
                 who = chat.who
+                # print("receive",{who})
                 if not who:
                     continue
                     
                 one_msgs = msgs.get(chat)
+                # print("receive",one_msgs)
                 if not one_msgs:
                     continue
                     
@@ -371,6 +382,10 @@ def message_listener():
                         elif ROBOT_WX_NAME != '' and (bool(re.search(f'@{ROBOT_WX_NAME}\u2005', msg.content)) or bool(re.search(f'{ROBOT_WX_NAME}\u2005', msg.content))): 
                             # 修改：在群聊被@时或者被叫名字，传入群聊ID(who)作为回复目标
                             chat_bot.handle_wxauto_message(msg, who, is_group=True) 
+                        elif True:#测试TODO
+                            print("who:",who,"sender",msg.sender)
+                            chat_bot.handle_wxauto_message(msg, who, is_group=True) #处理
+
                         else:
                             logger.debug(f"非需要处理消息，可能是群聊非@消息: {content}")   
                     except Exception as e:
@@ -408,9 +423,11 @@ def initialize_wx_listener():
                     # 尝试添加监听，设置savepic=False
                     wx.AddListenChat(who=chat_name, savepic=True)
                     logger.info(f"成功添加监听: {chat_name}")
+                    # print(f"成功添加监听: {chat_name}")
                     time.sleep(0.5)  # 添加短暂延迟，避免操作过快
                 except Exception as e:
                     logger.error(f"添加监听失败 {chat_name}: {str(e)}")
+                    # print(f"成功添加监听: {chat_name}")
                     continue
                     
             return wx

@@ -20,6 +20,7 @@ import os
 from services.ai.deepseek import DeepSeekAI
 from handlers.memory import MemoryHandler
 from config import config
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +120,7 @@ class MessageHandler:
                 logger.error(f"恢复提示文件失败: {str(restore_error)}")
 
     def process_messages(self, chat_id: str):
+        firstApply = False
         """处理消息队列中的消息"""
         with self.queue_lock:
             if chat_id not in self.user_queues:
@@ -237,11 +239,14 @@ class MessageHandler:
                     reply = f"@{sender_name} {reply}"
 
                 # 发送文本回复
-                if '\\' in reply:
+                if '##' in reply:
+                    self.wx.SendMsg(msg=reply, who=chat_id)
+                    time.sleep(random.randint(1, 2))
+                elif '\\' in reply:
                     parts = [p.strip() for p in reply.split('\\') if p.strip()]
                     for part in parts:
                         self.wx.SendMsg(msg=part, who=chat_id)
-                        time.sleep(random.randint(2, 4))
+                        time.sleep(random.randint(1, 3))
                 else:
                     self.wx.SendMsg(msg=reply, who=chat_id)
 
@@ -295,6 +300,17 @@ class MessageHandler:
             print("\n处理消息时出现错误:")
             print(f"错误信息: {str(e)}")
             print("="*50 + "\n")
+        
+    
+    # def send_split_messages(text, chat_id):
+    #     """通用消息分割发送函数"""
+    #     if '\\' in text:
+    #         parts = [p.strip() for p in text.split('\\') if p.strip()]
+    #         for part in parts:
+    #             self.wx.SendMsg(msg=part, who=chat_id)
+    #             time.sleep(random.randint(1, 3))
+    #     elif text.strip():  # 非空内容才发送
+    #         self.wx.SendMsg(msg=text.strip(), who=chat_id)
 
     def add_to_queue(self, chat_id: str, content: str, sender_name: str, 
                     username: str, is_group: bool = False):
@@ -317,3 +333,4 @@ class MessageHandler:
                 self.user_queues[chat_id]['messages'].append(time_aware_content)
                 self.user_queues[chat_id]['timer'] = threading.Timer(5.0, self.process_messages, args=[chat_id])
                 self.user_queues[chat_id]['timer'].start() 
+
