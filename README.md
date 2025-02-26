@@ -1,22 +1,7 @@
-# 🌸 KouriChat - 在虚拟与现实交织处，给予永恒的温柔羁绊
+# 🌸 KouriChat
 
 #### 本仓库为​**开发分支**​，包含新的​**实验性特性**​。若非开发人员**请勿**直接使用此分支，​**否则您的问题可能无法得到答复**​。
 
-[![GitHub Stars](https://img.shields.io/github/stars/KouriChat/KouriChat?style=for-the-badge&logo=starship&color=ff69b4)](https://github.com/KouriChat/KouriChat/stargazers)
-[![License](https://img.shields.io/badge/license-MIT-informational?style=for-the-badge)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.11_➔_3.12-3776AB?style=for-the-badge&logo=python&logoColor=white&labelColor=2B5B84)](https://www.python.org/downloads/)
-[![Community](https://img.shields.io/badge/QQ群-715616260-12B7F3?style=for-the-badge&logo=tencentqq)](https://jq.qq.com/?_wv=1027&k=5z4Q0i7o)
-
-**最新整合包**：[夸克网盘下载](https://pan.quark.cn/s/c55dd13218ea)<br>
-**详细文档**：[项目官网](https://kourichat.com/docs/)<br>
-**角色广场已上线！**：[角色档案馆](https://avatars.kourichat.com/#/archive)
-----------------------------
-
-## 🌟 效果示例
-
-<div align="center">
-  <img src="data/images/img/demo.png" width="600" alt="演示效果">
-</div>
 
 ### 🚀 部署推荐
 
@@ -119,41 +104,6 @@ KouriChat/
 
 ---
 
-## 💖 支持我们
-
-<div align="center">
-  <!-- 项目星标 -->
-  <p>点击星星助力项目成长 ⭐️ → 
-    <a href="https://github.com/KouriChat/KouriChat">
-      <img src="https://img.shields.io/github/stars/KouriChat/KouriChat?color=ff69b4&style=flat-square" alt="GitHub Stars">
-    </a>
-  </p>
-
-<!-- 资金用途 -->
-
-<p style="margin:18px 0 10px; font-size:0.95em">
-    🎯 您的支持将用于：<br>
-    🚀 服务器费用 • 🌸 API资源 • 🛠️ 功能开发 • 💌 社区运营
-  </p>
-
-<!-- 赞助二维码 -->
-
-<img src="data/images/img/qrcode.jpg" width="450" alt="支持二维码" style="border:3px solid #eee; border-radius:12px">
-
-<!-- 神秘计划模块 -->
-
-<div style="font-size:0.88em; line-height:1.3; max-width:540px; margin:15px auto;
-              background: linear-gradient(145deg, rgba(255,105,180,0.08), rgba(156,39,176,0.05));
-              padding:10px 15px; border-radius:6px; border:1px solid rgba(255,105,180,0.15)">
-    <span style="color: #9c27b0">🔒 神秘赞助计划：</span>
-    <span style="margin-left:6px; letter-spacing:-0.5px">
-      <i class="fa fa-lock" style="color: #ff4081; margin-right:4px"></i>
-      <span style="background: linear-gradient(45deg, #ff69b4, #9c27b0); -webkit-background-clip: text; color: transparent">
-        限定数字藏品·开发者礼包·神秘周边·▮▮▮▮
-      </span>
-    </span>
-  </div>
-
 <!-- 动态徽章 -->
 
 <div style="margin:18px 0 8px">
@@ -193,6 +143,4 @@ KouriChat/
   </a>
 
 </div>
-
-[![Star History](https://api.star-history.com/svg?repos=KouriChat/KouriChat&type=Timeline)](https://star-history.com/#KouriChat/KouriChat)
 
