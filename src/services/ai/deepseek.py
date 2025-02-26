@@ -56,7 +56,9 @@ class DeepSeekAI:
         self.chat_contexts: Dict[str, List[Dict]] = {}
 
         # 安全字符白名单（可根据需要扩展）
-        self.safe_pattern = re.compile(r'[\x00-\x1F\u202E\u200B]')
+        #self.safe_pattern = re.compile(r'[\x00-\x1F\u202E\u200B]')
+        self.safe_pattern = re.compile(r'[\x00-\x09\x0B\x0C\x0E-\x1F\u202E\u200B]')#保留换行
+
 
         # 如果是 Ollama，获取可用模型列表
         if 'localhost:11434' in base_url:
@@ -90,9 +92,11 @@ class DeepSeekAI:
         2. 标准化换行符
         3. 防止字符串截断异常
         """
+        # 换行控制
         try:
             cleaned = re.sub(self.safe_pattern, '', raw_text)
-            return cleaned.replace('\r\n', '\n').replace('\r', '\n')
+            return cleaned # 保留换行
+            # return cleaned.replace('\r\n', '\n').replace('\r', '\n') #删除换行
         except Exception as e:
             logger.error(f"Response sanitization failed: {str(e)}")
             return "响应处理异常，请重新尝试"

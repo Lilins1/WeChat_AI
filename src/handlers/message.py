@@ -78,6 +78,20 @@ class MessageHandler:
         except Exception as e:
             print(f"保存消息失败: {str(e)}")
 
+    def send_split_messages(self,text, chat_id):
+        firstApply = True
+        """通用消息分割发送函数"""
+        if '#&#' in text:
+            parts = [p.strip() for p in text.split('#&#') if p.strip()]
+            for part in parts:
+                self.wx.SendMsg(msg=part, who=chat_id)
+                if not firstApply:
+                    time.sleep(random.randint(0, 2))
+                else:
+                    firstApply = False
+        elif text.strip():  # 非空内容才发送
+            self.wx.SendMsg(msg=text.strip(), who=chat_id)
+
     def get_api_response(self, message: str, user_id: str) -> str:
         """获取 API 回复（含记忆增强）"""
         avatar_dir = os.path.join(self.root_dir, config.behavior.context.avatar_dir)
@@ -120,7 +134,7 @@ class MessageHandler:
                 logger.error(f"恢复提示文件失败: {str(restore_error)}")
 
     def process_messages(self, chat_id: str):
-        firstApply = False
+        
         """处理消息队列中的消息"""
         with self.queue_lock:
             if chat_id not in self.user_queues:
@@ -238,17 +252,33 @@ class MessageHandler:
                 if is_group:
                     reply = f"@{sender_name} {reply}"
 
+                self.send_split_messages(reply, chat_id)
+
                 # 发送文本回复
-                if '##' in reply:
-                    self.wx.SendMsg(msg=reply, who=chat_id)
-                    time.sleep(random.randint(1, 2))
-                elif '\\' in reply:
-                    parts = [p.strip() for p in reply.split('\\') if p.strip()]
-                    for part in parts:
-                        self.wx.SendMsg(msg=part, who=chat_id)
-                        time.sleep(random.randint(1, 3))
-                else:
-                    self.wx.SendMsg(msg=reply, who=chat_id)
+                # if '#&#' in reply:
+                #     matches = re.findall(r'#&#\s*(.*?)\s*#&#', reply, flags=re.DOTALL)
+                #     if matches:
+                #         # 发送##块内容
+                #         for content in matches:
+                #             if content.strip():
+                #                 msg=content.strip()
+                #                 print('mession content:',msg)
+                #                 self.wx.SendMsg(msg, who=chat_id)
+                #                 time.sleep(random.randint(1, 2))
+                        
+                #         # 处理剩余文本（复用通用函数）
+                #         remaining_text = re.sub(r'#&#\s*.*?\s*#&#', '', reply, flags=re.DOTALL)
+                #         if remaining_text:
+                #             print('remaining:',remaining_text)
+                #             self.send_split_messages(remaining_text, chat_id)
+                #     else:
+                #         print('unvaild')
+                #         self.send_split_messages(reply, chat_id)  # 无效##时回退
+                        
+                # else:
+                #     print('print raw text')
+                #     self.send_split_messages(reply, chat_id)  # 直接处理原始内容
+                    
 
                 # 检查回复中是否包含情感关键词并发送表情包
                 print("\n检查情感关键词...")
@@ -302,15 +332,7 @@ class MessageHandler:
             print("="*50 + "\n")
         
     
-    # def send_split_messages(text, chat_id):
-    #     """通用消息分割发送函数"""
-    #     if '\\' in text:
-    #         parts = [p.strip() for p in text.split('\\') if p.strip()]
-    #         for part in parts:
-    #             self.wx.SendMsg(msg=part, who=chat_id)
-    #             time.sleep(random.randint(1, 3))
-    #     elif text.strip():  # 非空内容才发送
-    #         self.wx.SendMsg(msg=text.strip(), who=chat_id)
+
 
     def add_to_queue(self, chat_id: str, content: str, sender_name: str, 
                     username: str, is_group: bool = False):

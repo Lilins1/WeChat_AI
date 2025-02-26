@@ -40,6 +40,9 @@ listen_list = config.user.listen_list
 queue_lock = threading.Lock()  # 队列访问锁
 user_queues = {}  # 用户消息队列管理
 chat_contexts = {}  # 存储上下文
+
+threadWaitInit = 5.0
+threadWaitTime = threadWaitInit #消息等待队列，5秒无新消息便发送
 # 初始化colorama
 init()
 
@@ -92,15 +95,144 @@ class ChatBot:
             logger.error(f"处理消息队列失败: {str(e)}", exc_info=True)
             print(f"处理消息队列失败: {str(e)}", exc_info=True)
 
+    # def handle_wxauto_message(self, msg, chatName, is_group=False):
+    #     try:
+    #         username = msg.sender
+    #         content = getattr(msg, 'content', None) or getattr(msg, 'text', None)
+            
+    #         # 添加详细日志
+    #         logger.info(f"收到消息 - 来源: {chatName}, 发送者: {username}, 是否群聊: {is_group}")
+    #         logger.info(f"原始消息内容: {content}")
+            
+    #         img_path = None
+    #         is_emoji = False
+    #         is_image_recognition = False  # 新增标记，用于标识是否是图片识别结果
+            
+    #         # 如果是群聊@消息，移除@机器人的部分
+    #         if is_group and self.robot_name and content:
+    #             logger.info(f"处理群聊@消息 - 机器人名称: {self.robot_name}")
+    #             original_content = content
+    #             content = re.sub(f'@{self.robot_name}\u2005', '', content).strip()
+    #             logger.info(f"移除@后的消息内容: {content}")
+    #             if original_content == content:
+    #                 logger.info("未检测到@机器人，但是继续处理")
+                    
+            
+    #         if content and content.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+    #             logger.info(f"检测到图片消息: {content}")
+    #             img_path = content
+    #             is_emoji = False
+    #             content = None
+
+    #         # 检查是否是"[动画表情]"
+    #         if content and "[动画表情]" in content:
+    #             logger.info("检测到动画表情")
+    #             img_path = emoji_handler.capture_and_save_screenshot(username)
+    #             logger.info(f"表情截图保存路径: {img_path}")
+    #             is_emoji = True
+    #             content = None
+
+    #         if img_path:
+                
+    #             logger.info(f"开始处理图片/表情 - 路径: {img_path}, 是否表情: {is_emoji}")
+
+    #             start_time = time.time()  # 记录开始时间
+    #             recognized_text = self.moonshot_ai.recognize_image(img_path, is_emoji) #图片识别
+    #             end_time = time.time()  # 记录结束时间
+    #             recognition_time = end_time - start_time  # 计算识别时间
+    #             print("recognition_time",recognition_time)
+    #             time.sleep(wait)
+    #             logger.info(f"图片/表情识别结果: {recognized_text}")
+    #             content = recognized_text if content is None else f"{content} {recognized_text}"
+    #             is_image_recognition = True  # 标记这是图片识别结果
+                
+
+    #         # 情感分析处理
+    #         if content:
+    #             # 检测是否为表情包请求
+    #             if emoji_handler.is_emoji_request(content):
+    #                 logger.info("检测到表情包请求")
+    #                 # 使用AI识别的情感选择表情包
+    #                 emoji_path = emoji_handler.get_emotion_emoji(content)
+    #                 if emoji_path:
+    #                     logger.info(f"准备发送情感表情包: {emoji_path}")
+    #                     self.message_handler.wx.SendFiles(emoji_path, chatName)
+
+    #             # 如果是图片识别结果，跳过画图功能检测
+    #             if not is_image_recognition:
+    #                 logger.info("检查是否为画图请求")
+    #                 if image_handler.is_image_generation_request(content):
+    #                     logger.info(f"检测到画图请求: {content}")
+    #                 else:
+    #                     logger.info("不是画图请求，继续正常对话")
+
+    #             sender_name = username
+    #             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    #             time_aware_content = f"[{current_time}] {content}"
+    #             logger.info(f"格式化后的消息: {time_aware_content}")
+
+    #             with self.queue_lock:
+    #                 if chatName not in self.user_queues:
+    #                     logger.info(f"创建新的消息队列 - 聊天ID: {chatName}")
+    #                     self.user_queues[chatName] = {
+    #                         'timer': threading.Timer(threadWaitTime, self.process_user_messages, args=[chatName]),
+    #                         'messages': [time_aware_content],
+    #                         'sender_name': sender_name,
+    #                         'username': username,
+    #                         'is_group': is_group
+    #                     }
+    #                     self.user_queues[chatName]['timer'].start()
+    #                     logger.info(f"消息队列创建完成 - 是否群聊: {is_group}, 发送者: {sender_name}")
+    #                 else:
+    #                     logger.info(f"更新现有消息队列 - 聊天ID: {chatName}")
+    #                     self.user_queues[chatName]['timer'].cancel()
+    #                     self.user_queues[chatName]['messages'].append(time_aware_content)
+    #                     self.user_queues[chatName]['timer'] = threading.Timer(threadWaitTime, self.process_user_messages, args=[chatName])
+    #                     self.user_queues[chatName]['timer'].start()
+    #                     logger.info("消息队列更新完成")
+
+    #     except Exception as e:
+    #         logger.error(f"消息处理失败: {str(e)}", exc_info=True)
+
     def handle_wxauto_message(self, msg, chatName, is_group=False):
         try:
             username = msg.sender
+            sender_name = username
             content = getattr(msg, 'content', None) or getattr(msg, 'text', None)
             
             # 添加详细日志
             logger.info(f"收到消息 - 来源: {chatName}, 发送者: {username}, 是否群聊: {is_group}")
             logger.info(f"原始消息内容: {content}")
-            
+            with self.queue_lock:
+                if chatName not in self.user_queues:
+                    logger.info(f"创建新的消息队列 - 聊天ID: {chatName}")
+                    time_aware_content = self.handle_msg_process(msg, content, chatName, is_group)
+                    if time_aware_content:
+                        self.user_queues[chatName] = {
+                            'timer': threading.Timer(threadWaitTime, self.process_user_messages, args=[chatName]),
+                            'messages': [time_aware_content],
+                            'sender_name': sender_name,
+                            'username': username,
+                            'is_group': is_group
+                        }
+                        self.user_queues[chatName]['timer'].start()
+                        logger.info(f"消息队列创建完成 - 是否群聊: {is_group}, 发送者: {sender_name}")
+                else:
+                    logger.info(f"更新现有消息队列 - 聊天ID: {chatName}")
+                    self.user_queues[chatName]['timer'].cancel()
+                    time_aware_content = self.handle_msg_process(msg, content, chatName, is_group)
+                    if time_aware_content:
+                        self.user_queues[chatName]['messages'].append(time_aware_content)
+                    self.user_queues[chatName]['timer'] = threading.Timer(threadWaitTime, self.process_user_messages, args=[chatName])
+                    self.user_queues[chatName]['timer'].start()
+                    logger.info("消息队列更新完成")
+
+        except Exception as e:
+            logger.error(f"消息队列处理失败: {str(e)}", exc_info=True)
+    
+    def handle_msg_process(self, msg, content, chatName, is_group):
+        try:
+            username = msg.sender
             img_path = None
             is_emoji = False
             is_image_recognition = False  # 新增标记，用于标识是否是图片识别结果
@@ -130,11 +262,19 @@ class ChatBot:
                 content = None
 
             if img_path:
+                
                 logger.info(f"开始处理图片/表情 - 路径: {img_path}, 是否表情: {is_emoji}")
-                recognized_text = self.moonshot_ai.recognize_image(img_path, is_emoji)
+
+                start_time = time.time()  # 记录开始时间
+                recognized_text = self.moonshot_ai.recognize_image(img_path, is_emoji) #图片识别
+                end_time = time.time()  # 记录结束时间
+                recognition_time = end_time - start_time  # 计算识别时间
+                print("recognition_time",recognition_time)
+                time.sleep(30)
                 logger.info(f"图片/表情识别结果: {recognized_text}")
                 content = recognized_text if content is None else f"{content} {recognized_text}"
                 is_image_recognition = True  # 标记这是图片识别结果
+                
 
             # 情感分析处理
             if content:
@@ -155,31 +295,13 @@ class ChatBot:
                     else:
                         logger.info("不是画图请求，继续正常对话")
 
-                sender_name = username
+                
                 current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 time_aware_content = f"[{current_time}] {content}"
                 logger.info(f"格式化后的消息: {time_aware_content}")
-
-                with self.queue_lock:
-                    if chatName not in self.user_queues:
-                        logger.info(f"创建新的消息队列 - 聊天ID: {chatName}")
-                        self.user_queues[chatName] = {
-                            'timer': threading.Timer(5.0, self.process_user_messages, args=[chatName]),
-                            'messages': [time_aware_content],
-                            'sender_name': sender_name,
-                            'username': username,
-                            'is_group': is_group
-                        }
-                        self.user_queues[chatName]['timer'].start()
-                        logger.info(f"消息队列创建完成 - 是否群聊: {is_group}, 发送者: {sender_name}")
-                    else:
-                        logger.info(f"更新现有消息队列 - 聊天ID: {chatName}")
-                        self.user_queues[chatName]['timer'].cancel()
-                        self.user_queues[chatName]['messages'].append(time_aware_content)
-                        self.user_queues[chatName]['timer'] = threading.Timer(5.0, self.process_user_messages, args=[chatName])
-                        self.user_queues[chatName]['timer'].start()
-                        logger.info("消息队列更新完成")
-
+                return time_aware_content
+            else:
+                return False
         except Exception as e:
             logger.error(f"消息处理失败: {str(e)}", exc_info=True)
 
@@ -332,6 +454,7 @@ def start_countdown():
     is_countdown_running = True
 
 def message_listener():
+    # global threadWaitTime,threadWaitInit
     wx = None
     last_window_check = 0
     check_interval = 600
@@ -348,8 +471,14 @@ def message_listener():
                     time.sleep(5)
                     continue
                 last_window_check = current_time
-            
-            msgs = wx.GetListenMessage()
+
+            start_time = time.time()  # 记录开始时间
+            msgs = wx.GetListenMessage() # TODO need time to save file
+            end_time = time.time()  # 记录结束时间
+            timeGap = end_time -start_time
+            threadWaitTime = threadWaitInit + timeGap
+            # print("save message took: ", timeGap, "threadWaitTime: ", threadWaitTime)
+                
             if not msgs:
                 # print("no message")
                 time.sleep(wait)
