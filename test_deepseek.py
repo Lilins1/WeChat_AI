@@ -1,16 +1,22 @@
-# Please install OpenAI SDK first: `pip3 install openai`
+import requests
 
-from openai import OpenAI
+url = "https://api.siliconflow.cn/v1/images/generations"
 
-client = OpenAI(api_key="sk-feaf8d2cf5124b54869822ea0b89c9af", base_url="https://api.deepseek.com")
+payload = {
+    "model": "Kwai-Kolors/Kolors",
+    "prompt": "1",
+    "image_size": "1024x1024",
+    "batch_size": 1,
+    "num_inference_steps": 1,
+    "guidance_scale": 1,
+    "negative_prompt": "1",
+    "seed": 1
+}
+headers = {
+    "Authorization": "Bearer sk-oitgzcauugwywxcmjcglritmcluknzboixetemwugzeojndm",
+    "Content-Type": "application/json"
+}
 
-response = client.chat.completions.create(
-    model="deepseek-reasoner",
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant"},
-        {"role": "user", "content": "Hello"},
-    ],
-    stream=False
-)
+response = requests.request("POST", url, json=payload, headers=headers)
 
-print(response.choices[0].message.content)
+print(response.text)

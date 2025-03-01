@@ -317,6 +317,7 @@ image_handler = ImageHandler(
     root_dir=root_dir,
     api_key=config.llm.api_key,
     base_url=config.llm.base_url,
+    image_model_url = config.media.image_generation.image_url,
     image_model=config.media.image_generation.model
 )
 voice_handler = VoiceHandler(

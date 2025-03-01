@@ -19,10 +19,11 @@ from services.ai.deepseek import DeepSeekAI
 logger = logging.getLogger(__name__)
 
 class ImageHandler:
-    def __init__(self, root_dir, api_key, base_url, image_model):
+    def __init__(self, root_dir, api_key, base_url, image_model_url, image_model):
         self.root_dir = root_dir
         self.api_key = api_key
         self.base_url = base_url
+        self.image_model_url = image_model_url
         self.image_model = image_model
         self.temp_dir = os.path.join(root_dir, "data", "images", "temp")
         
@@ -321,20 +322,34 @@ class ImageHandler:
                 "Content-Type": "application/json"
             }
             
+            # payload = {
+            #     "model": self.image_model,
+            #     "prompt": f"masterpiece, best quality, {optimized_prompt}",
+            #     "negative_prompt": negative_prompt,
+            #     "steps": quality_config['steps'],
+            #     "width": quality_config['width'],
+            #     "height": quality_config['width'],  # 保持方形比例
+            #     "guidance_scale": 7.5,
+            #     "seed": int(time.time() % 1000)  # 添加随机种子
+            # }
+
             payload = {
                 "model": self.image_model,
                 "prompt": f"masterpiece, best quality, {optimized_prompt}",
                 "negative_prompt": negative_prompt,
-                "steps": quality_config['steps'],
-                "width": quality_config['width'],
-                "height": quality_config['width'],  # 保持方形比例
+                "num_inference_steps": quality_config['steps'],
+                "batch_size": 1,
+                "image_size": "1024x1024",
+                # "height": quality_config['width'],  # 保持方形比例
                 "guidance_scale": 7.5,
                 "seed": int(time.time() % 1000)  # 添加随机种子
             }
+
+        
             
             # 调用生成API
             response = requests.post(
-                f"{self.base_url}/images/generations",
+                url = f"{self.image_model_url}",
                 headers=headers,
                 json=payload,
                 timeout=45

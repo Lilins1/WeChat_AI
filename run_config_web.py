@@ -295,8 +295,9 @@ def save_config(new_config: Dict[str, Any]) -> bool:
                 temperature=float(new_config.get("MOONSHOT_TEMPERATURE", 1.1)),
             ),
             image_generation=ImageGenerationSettings(
-                model=new_config.get("IMAGE_MODEL", ""),
-                temp_dir=new_config.get("TEMP_IMAGE_DIR", ""),
+                # image_url=new_config.get("IMAGE_MODEL", ""),
+                # model=new_config.get("IMAGE_MODEL", ""),
+                # temp_dir=new_config.get("TEMP_IMAGE_DIR", ""),
             ),
             text_to_speech=TextToSpeechSettings(
                 tts_api_url=new_config.get("TTS_API_URL", ""),

@@ -219,10 +219,10 @@ class MessageHandler:
                 if image_path:
                     try:
                         self.wx.SendFiles(filepath=image_path, who=chat_id)
-                        reply = "这是按照主人您的要求生成的图片\\(^o^)/~"
+                        reply = "这是按照您的要求生成的图片\\(^o^)/~"
                     except Exception as e:
                         logger.error(f"发送生成图片失败: {str(e)}")
-                        reply = "抱歉主人，图片生成失败了..."
+                        reply = "抱歉，图片生成失败了..."
                     finally:
                         try:
                             if os.path.exists(image_path):

@@ -27,6 +27,7 @@ class ImageRecognitionSettings:
 
 @dataclass
 class ImageGenerationSettings:
+    image_url : str
     model: str
     temp_dir: str
 
@@ -163,6 +164,7 @@ class Config:
                     ),
                     image_generation=ImageGenerationSettings(
                         model=media_data['image_generation']['model']['value'],
+                        image_url=media_data['image_generation']['image_url']['value'],
                         temp_dir=media_data['image_generation']['temp_dir']['value']
                     ),
                     text_to_speech=TextToSpeechSettings(
